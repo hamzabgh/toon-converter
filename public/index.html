@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOON Converter Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * { 
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0a0a0f;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+        }
+        
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .glass-card {
+            background: rgba(17, 17, 27, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        
+        .glass-card-light {
+            background: rgba(30, 30, 46, 0.4);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        
+        .editor-wrapper {
+            position: relative;
+            height: 500px;
+            overflow: hidden;
+        }
+        
+        .code-editor {
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 15, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            padding: 20px;
+            resize: none;
+            outline: none;
+            overflow: auto;
+            line-height: 1.6;
+        }
+        
+        .code-display {
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 15, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            overflow: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .code-display pre {
+            margin: 0;
+        }
+        
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-gradient:hover::before {
+            left: 100%;
+        }
+        
+        .btn-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-zone {
+            transition: all 0.3s ease;
+            border: 2px dashed rgba(102, 126, 234, 0.3);
+            cursor: pointer;
+        }
+        
+        .upload-zone:hover, .upload-zone.drag-over {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.08);
+            transform: scale(1.01);
+        }
+        
+        .tab-btn {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .tab-btn.active {
+            color: #667eea;
+        }
+        
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-ready {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .status-error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .status-converting {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse-animation 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-animation {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .line-numbers {
+            position: absolute;
+            left: 0;
+            top: 20px;
+            width: 50px;
+            text-align: right;
+            color: rgba(255, 255, 255, 0.3);
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding-right: 10px;
+            user-select: none;
+        }
+        
+        .code-editor-with-numbers {
+            padding-left: 60px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+        
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            font-size: 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            z-index: 100;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+    
+    <div class="content-wrapper min-h-screen p-6">
+        
+        <!-- Header -->
+        <div class="max-w-7xl mx-auto mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        TOON Converter Pro
+                    </h1>
+                    <p class="text-gray-400">Professional JSON ↔ TOON conversion with live preview</p>
+                </div>
+                <div class="flex gap-3">
+                    <div class="stat-card rounded-xl px-5 py-3">
+                        <p class="text-xs text-gray-400 mb-1">Total Conversions</p>
+                        <p class="text-2xl font-bold" id="totalConversions">0</p>
+                    </div>
+                    <div id="statusBadge" class="flex items-center">
+                        <span class="status-badge status-ready">
+                            <span class="pulse-dot"></span>
+                            Ready
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- Input Panel -->
+                <div class="glass-card rounded-2xl p-6 fade-in">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold mb-1">Input</h2>
+                            <p class="text-sm text-gray-400" id="inputFormatLabel">JSON Format</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="jsonModeBtn" class="tab-btn active px-4 py-2 text-sm font-semibold rounded-lg">
+                                JSON
+                            </button>
+                            <button id="toonModeBtn" class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg">
+                                TOON
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Upload Zone -->
+                    <div id="uploadZone" class="upload-zone rounded-xl p-8 mb-4 text-center">
+                        <input type="file" id="fileInput" class="hidden" accept=".json">
+                        <svg class="w-12 h-12 mx-auto mb-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <p class="font-semibold mb-1">Drop file or click to upload</p>
+                        <p class="text-xs text-gray-500" id="acceptedFileType">.json files accepted</p>
+                    </div>
+
+                    <!-- Editor -->
+                    <div class="editor-wrapper rounded-xl overflow-hidden">
+                        <textarea id="inputEditor" class="code-editor scrollbar-thin code-editor-with-numbers" placeholder="Paste your JSON here or upload a file..."></textarea>
+                        <div id="inputLineNumbers" class="line-numbers"></div>
+                    </div>
+
+                    <!-- Input Actions -->
+                    <div class="flex gap-3 mt-4">
+                        <button id="clearInputBtn" class="btn-secondary flex-1 py-3 rounded-lg font-semibold text-sm">
+                            <span class="flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                Clear
+                            </span>
+                        </button>
+                        <button id="formatInputBtn" class="btn-secondary flex-1 py-3 rounded-lg font-semibold text-sm tooltip" data-tooltip="Format & Beautify">
+                            <span class="flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+                                </svg>
+                                Format
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Output Panel -->
+                <div class="glass-card rounded-2xl p-6 fade-in" style="animation-delay: 0.1s;">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold mb-1">Output</h2>
+                            <p class="text-sm text-gray-400" id="outputFormatLabel">TOON Format</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="copyOutputBtn" class="btn-secondary px-4 py-2 text-sm font-semibold rounded-lg tooltip" data-tooltip="Copy to clipboard">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                </svg>
+                            </button>
+                            <button id="downloadOutputBtn" class="btn-secondary px-4 py-2 text-sm font-semibold rounded-lg tooltip" data-tooltip="Download file">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Output Display -->
+                    <div class="editor-wrapper rounded-xl overflow-hidden mb-4">
+                        <div id="outputDisplay" class="code-display scrollbar-thin">
+                            <pre><code class="text-gray-500">Output will appear here after conversion...</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Convert Button -->
+                    <button id="convertBtn" class="btn-gradient w-full py-4 rounded-xl font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <span id="convertBtnText" class="flex items-center justify-center gap-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                            </svg>
+                            Convert Now
+                        </span>
+                        <span id="convertingSpinner" class="hidden flex items-center justify-center gap-3">
+                            <span class="spinner"></span>
+                            Converting...
+                        </span>
+                    </button>
+
+                    <!-- Size Info -->
+                    <div id="sizeInfo" class="hidden mt-4 grid grid-cols-2 gap-3">
+                        <div class="glass-card-light rounded-lg p-3 text-center">
+                            <p class="text-xs text-gray-500 mb-1">Input Size</p>
+                            <p class="font-bold" id="inputSize">0 B</p>
+                        </div>
+                        <div class="glass-card-light rounded-lg p-3 text-center">
+                            <p class="text-xs text-gray-500 mb-1">Output Size</p>
+                            <p class="font-bold" id="outputSize">0 B</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-6 right-6 glass-card rounded-xl p-4 max-w-sm z-50 fade-in">
+        <div class="flex items-center gap-3">
+            <div id="toastIcon"></div>
+            <div>
+                <p id="toastTitle" class="font-semibold text-sm"></p>
+                <p id="toastMessage" class="text-xs text-gray-400 mt-1"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let conversionMode = 'json-to-toon';
+        let inputContent = '';
+        let outputContent = '';
+        let totalConversions = parseInt(localStorage.getItem('totalConversions') || '0');
+        
+        document.getElementById('totalConversions').textContent = totalConversions;
+
+        const elements = {
+            inputEditor: document.getElementById('inputEditor'),
+            outputDisplay: document.getElementById('outputDisplay'),
+            fileInput: document.getElementById('fileInput'),
+            uploadZone: document.getElementById('uploadZone'),
+            convertBtn: document.getElementById('convertBtn'),
+            jsonModeBtn: document.getElementById('jsonModeBtn'),
+            toonModeBtn: document.getElementById('toonModeBtn'),
+            statusBadge: document.getElementById('statusBadge'),
+            inputFormatLabel: document.getElementById('inputFormatLabel'),
+            outputFormatLabel: document.getElementById('outputFormatLabel'),
+            acceptedFileType: document.getElementById('acceptedFileType'),
+            sizeInfo: document.getElementById('sizeInfo'),
+            inputSize: document.getElementById('inputSize'),
+            outputSize: document.getElementById('outputSize')
+        };
+
+        // Update line numbers
+        function updateLineNumbers() {
+            const lines = elements.inputEditor.value.split('\n').length;
+            const lineNumbers = document.getElementById('inputLineNumbers');
+            lineNumbers.innerHTML = Array.from({length: lines}, (_, i) => i + 1).join('<br>');
+        }
+
+        elements.inputEditor.addEventListener('input', () => {
+            updateLineNumbers();
+            inputContent = elements.inputEditor.value;
+            elements.convertBtn.disabled = !inputContent.trim();
+        });
+
+        elements.inputEditor.addEventListener('scroll', () => {
+            document.getElementById('inputLineNumbers').style.top = (20 - elements.inputEditor.scrollTop) + 'px';
+        });
+
+        // Mode switching
+        function switchMode(mode) {
+            conversionMode = mode;
+            
+            if (mode === 'json-to-toon') {
+                elements.jsonModeBtn.classList.add('active');
+                elements.toonModeBtn.classList.remove('active');
+                elements.inputFormatLabel.textContent = 'JSON Format';
+                elements.outputFormatLabel.textContent = 'TOON Format';
+                elements.fileInput.accept = '.json';
+                elements.acceptedFileType.textContent = '.json files accepted';
+                elements.inputEditor.placeholder = 'Paste your JSON here or upload a file...';
+            } else {
+                elements.toonModeBtn.classList.add('active');
+                elements.jsonModeBtn.classList.remove('active');
+                elements.inputFormatLabel.textContent = 'TOON Format';
+                elements.outputFormatLabel.textContent = 'JSON Format';
+                elements.fileInput.accept = '.toon';
+                elements.acceptedFileType.textContent = '.toon files accepted';
+                elements.inputEditor.placeholder = 'Paste your TOON content here or upload a file...';
+            }
+            
+            elements.inputEditor.value = '';
+            elements.outputDisplay.innerHTML = '<pre><code class="text-gray-500">Output will appear here after conversion...</code></pre>';
+            elements.convertBtn.disabled = true;
+            elements.sizeInfo.classList.add('hidden');
+            updateLineNumbers();
+            updateStatus('ready');
+        }
+
+        elements.jsonModeBtn.addEventListener('click', () => switchMode('json-to-toon'));
+        elements.toonModeBtn.addEventListener('click', () => switchMode('toon-to-json'));
+
+        // File upload
+        elements.uploadZone.addEventListener('click', () => elements.fileInput.click());
+
+        elements.uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            elements.uploadZone.classList.add('drag-over');
+        });
+
+        elements.uploadZone.addEventListener('dragleave', () => {
+            elements.uploadZone.classList.remove('drag-over');
+        });
+
+        elements.uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            elements.uploadZone.classList.remove('drag-over');
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        elements.fileInput.addEventListener('change', (e) => {
+            handleFile(e.target.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file) return;
+            
+            const expectedExt = conversionMode === 'json-to-toon' ? '.json' : '.toon';
+            if (!file.name.endsWith(expectedExt)) {
+                showToast('error', 'Invalid File Type', `Please upload a ${expectedExt} file`);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                elements.inputEditor.value = e.target.result;
+                inputContent = e.target.result;
+                updateLineNumbers();
+                elements.convertBtn.disabled = false;
+                showToast('success', 'File Loaded', `${file.name} loaded successfully`);
+            };
+            reader.readAsText(file);
+        }
+
+        // Clear input
+        document.getElementById('clearInputBtn').addEventListener('click', () => {
+            elements.inputEditor.value = '';
+            inputContent = '';
+            elements.convertBtn.disabled = true;
+            updateLineNumbers();
+            showToast('success', 'Cleared', 'Input cleared');
+        });
+
+        // Format input
+        document.getElementById('formatInputBtn').addEventListener('click', () => {
+            if (!inputContent.trim()) return;
+            
+            try {
+                if (conversionMode === 'json-to-toon') {
+                    const formatted = JSON.stringify(JSON.parse(inputContent), null, 2);
+                    elements.inputEditor.value = formatted;
+                    inputContent = formatted;
+                    updateLineNumbers();
+                    showToast('success', 'Formatted', 'JSON formatted successfully');
+                }
+            } catch (err) {
+                showToast('error', 'Format Error', 'Invalid JSON syntax');
+            }
+        });
+
+        // Convert
+        elements.convertBtn.addEventListener('click', async () => {
+            if (!inputContent.trim()) return;
+
+            updateStatus('converting');
+            elements.convertBtn.disabled = true;
+            document.getElementById('convertBtnText').classList.add('hidden');
+            document.getElementById('convertingSpinner').classList.remove('hidden');
+
+            const formData = new FormData();
+            const blob = new Blob([inputContent], { type: 'text/plain' });
+            const filename = conversionMode === 'json-to-toon' ? 'input.json' : 'input.toon';
+            formData.append('file', blob, filename);
+            formData.append('type', conversionMode);
+
+            try {
+                const response = await fetch('/convert', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const resultBlob = await response.blob();
+                    const text = await resultBlob.text();
+                    outputContent = text;
+                    
+                    // Display output
+                    if (conversionMode === 'json-to-toon') {
+                        elements.outputDisplay.innerHTML = `<pre><code>${escapeHtml(text)}</code></pre>`;
+                    } else {
+                        try {
+                            const formatted = JSON.stringify(JSON.parse(text), null, 2);
+                            elements.outputDisplay.innerHTML = `<pre><code class="language-json">${escapeHtml(formatted)}</code></pre>`;
+                            hljs.highlightElement(elements.outputDisplay.querySelector('code'));
+                        } catch {
+                            elements.outputDisplay.innerHTML = `<pre><code>${escapeHtml(text)}</code></pre>`;
+                        }
+                    }
+
+                    // Update sizes
+                    const inputBytes = new Blob([inputContent]).size;
+                    const outputBytes = new Blob([outputContent]).size;
+                    elements.inputSize.textContent = formatBytes(inputBytes);
+                    elements.outputSize.textContent = formatBytes(outputBytes);
+                    elements.sizeInfo.classList.remove('hidden');
+
+                    totalConversions++;
+                    localStorage.setItem('totalConversions', totalConversions.toString());
+                    document.getElementById('totalConversions').textContent = totalConversions;
+
+                    updateStatus('ready');
+                    showToast('success', 'Conversion Complete', 'Your file has been converted successfully');
+                } else {
+                    updateStatus('error');
+                    showToast('error', 'Conversion Failed', 'Please check your input and try again');
+                }
+            } catch (error) {
+                updateStatus('error');
+                showToast('error', 'Error', 'An unexpected error occurred');
+            } finally {
+                elements.convertBtn.disabled = false;
+                document.getElementById('convertBtnText').classList.remove('hidden');
+                document.getElementById('convertingSpinner').classList.add('hidden');
+            }
+        });
+
+        // Copy output
+        document.getElementById('copyOutputBtn').addEventListener('click', () => {
+            if (!outputContent) {
+                showToast('error', 'Nothing to Copy', 'Please convert a file first');
+                return;
+            }
+            
+            navigator.clipboard.writeText(outputContent).then(() => {
+                showToast('success', 'Copied', 'Output copied to clipboard');
+            });
+        });
+
+        // Download output
+        document.getElementById('downloadOutputBtn').addEventListener('click', () => {
+            if (!outputContent) {
+                showToast('error', 'Nothing to Download', 'Please convert a file first');
+                return;
+            }
+
+            const blob = new Blob([outputContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = conversionMode === 'json-to-toon' ? 'converted.toon' : 'converted.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('success', 'Downloaded', 'File downloaded successfully');
+        });
+
+        // Update status badge
+        function updateStatus(status) {
+            const badge = elements.statusBadge.querySelector('.status-badge');
+            badge.className = 'status-badge';
+            
+            if (status === 'ready') {
+                badge.classList.add('status-ready');
+                badge.innerHTML = '<span class="pulse-dot"></span>Ready';
+            } else if (status === 'converting') {
+                badge.classList.add('status-converting');
+                badge.innerHTML = '<span class="spinner"></span>Converting';
+            } else if (status === 'error') {
+                badge.classList.add('status-error');
+                badge.innerHTML = '<span class="pulse-dot"></span>Error';
+            }
+        }
+
+        // Helper functions
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Toast notification
+        function showToast(type, title, message) {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+
+            if (type === 'success') {
+                icon.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                `;
+            } else {
+                icon.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-red-500 bg-opacity-20 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </div>
+                `;
+            }
+
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.remove('hidden');
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+
+        // Initialize
+        updateLineNumbers();
+    </script>
+
+  </body>
+</html>

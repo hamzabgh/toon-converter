@@ -1,0 +1,24 @@
+# Node.js dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+
+# Output files
+output/
+*.toon
+*.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# VS Code settings
+.vscode/
+
+# Temporary files
+*.tmp
