@@ -53,13 +53,13 @@ The server will run on `http://localhost:4004`.
 #### Convert JSON → TOON
 
 ```bash
-node src/converters/json-to-toon.js data/example.json output/example.toon
+node src/json-to-toon.js data/example.json output/example.toon
 ```
 
 #### Convert TOON → JSON
 
 ```bash
-node src/converters/toon-to-json.js output/example.toon output/example.json
+node src/toon-to-json.js output/example.toon output/example.json
 ```
 
 ---
