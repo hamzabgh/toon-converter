@@ -1,0 +1,48 @@
+{
+  "people": [
+    {
+      "person": {
+        "name": "Hamza Boughanim",
+        "age": 24,
+        "country": "Morocco"
+      },
+      "skills": ["PHP", "Python", "Machine Learning", "React.js"],
+      "projects": [
+        { "title": "AI Insurance Pipeline", "year": 2024, "tech": ["Python", "FastAPI", "ML"] },
+        { "title": "Kidney Disease Classification", "year": 2025, "tech": ["TensorFlow", "CNN", "VGG16"] }
+      ]
+    },
+    {
+      "person": { "name": "Sara El Idrissi", "age": 27, "country": "Morocco" },
+      "skills": ["JavaScript", "Node.js", "React", "TailwindCSS"],
+      "projects": [
+        { "title": "E-commerce Platform", "year": 2023, "tech": ["React", "Node.js", "MongoDB"] },
+        { "title": "Crypto Trading Bot", "year": 2024, "tech": ["Python", "Pandas", "ARIMA"] }
+      ]
+    },
+    {
+      "person": { "name": "Youssef Benali", "age": 30, "country": "Morocco" },
+      "skills": ["Java", "Spring Boot", "SQL", "AWS"],
+      "projects": [
+        { "title": "Banking API", "year": 2023, "tech": ["Java", "Spring Boot", "MySQL"] },
+        { "title": "Insurance Management System", "year": 2024, "tech": ["Java", "Hibernate", "PostgreSQL"] }
+      ]
+    },
+    {
+      "person": { "name": "Imane Ouazzani", "age": 26, "country": "Morocco" },
+      "skills": ["Python", "Data Analysis", "Machine Learning", "Pandas"],
+      "projects": [
+        { "title": "Data Analytics Dashboard", "year": 2024, "tech": ["Python", "Dash", "Pandas"] },
+        { "title": "Customer Churn Prediction", "year": 2025, "tech": ["Python", "Scikit-learn", "ML"] }
+      ]
+    },
+    {
+      "person": { "name": "Rachid Alami", "age": 28, "country": "Morocco" },
+      "skills": ["C#", ".NET", "SQL Server", "Azure"],
+      "projects": [
+        { "title": "ERP System", "year": 2023, "tech": ["C#", ".NET", "SQL Server"] },
+        { "title": "Inventory Management", "year": 2024, "tech": ["C#", "Entity Framework", "Azure"] }
+      ]
+    }
+  ]
+}

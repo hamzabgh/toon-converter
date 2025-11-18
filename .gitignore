@@ -1,14 +1,8 @@
 # Node.js dependencies
 node_modules/
 
-# Logs
-logs/
-*.log
 
-# Output files
-output/
-*.toon
-*.json
+
 
 # OS files
 .DS_Store

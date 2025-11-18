@@ -1,0 +1,20 @@
+{
+  "name": "toon-converter",
+  "version": "1.0.0",
+  "description": "A Node.js app to convert between JSON and TOON format with a web interface.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "@toon-format/toon": "^1.0.0",
+    "chalk": "^4.1.2",
+    "express": "^5.1.0",
+    "multer": "^2.0.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "author": "Hamza Boughanim",
+  "license": "MIT"
+}
