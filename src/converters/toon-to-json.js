@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { decode } = require('@toon-format/toon');
-const { info, success, warning, error } = require('./utils');
+const { info, success, warning, error } = require('../utils/utils');
 
 function toonToJson(inputPath, outputPath) {
   try {

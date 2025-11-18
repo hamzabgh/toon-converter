@@ -3,15 +3,13 @@ const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
 const { encode, decode } = require('@toon-format/toon');
-const { info, success, warning, error } = require('./utils');
+const { info, success, warning, error } = require('../src/utils/utils');
 
 const app = express();
 const PORT = 4004;
 
-// Serve static frontend
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Multer setup for file uploads
 const upload = multer({ dest: path.join(__dirname, '../data/') });
 
 // POST route for conversion
@@ -49,7 +47,6 @@ app.post('/convert', upload.single('file'), (req, res) => {
     error(`Conversion error: ${err.message}`);
     res.status(500).send('Conversion failed');
   } finally {
-    // Remove uploaded file
     fs.unlinkSync(inputPath);
   }
 });
